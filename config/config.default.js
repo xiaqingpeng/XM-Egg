@@ -22,6 +22,12 @@ module.exports = (appInfo) => {
     agent: false,
   };
 
+  config.middleware=['auth']
+  config.security= {
+    csrf: {
+      enable: false,
+    },
+  };
   return {
     ...config,
   };
