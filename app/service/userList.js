@@ -9,10 +9,14 @@ class HomeList extends Service {
     const { ctx, app } = this;
     console.log(row);
     try {
+      
       let results = await app.mysql.insert("user", row);
+
       if (results.affectedRows) {
         let data = await app.mysql.select("user");
-        return data;
+        //查询总数
+        let total = await app.mysql.query(`select count(*) as total from user`);
+        return { data, total: total[0].total };
       } else {
         return {
           code: 10001,
@@ -141,7 +145,9 @@ class HomeList extends Service {
       const results = await app.mysql.update("user", row, options);
       if (results.affectedRows) {
         let data = await app.mysql.select("user");
-        return data;
+        //查询总数
+        let total = await app.mysql.query(`select count(*) as total from user`);
+        return { data, total: total[0].total };
       } else {
         return {
           code: 10001,
