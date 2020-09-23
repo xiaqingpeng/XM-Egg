@@ -9,7 +9,6 @@ class HomeList extends Service {
     const { ctx, app } = this;
     console.log(row);
     try {
-      
       let results = await app.mysql.insert("user", row);
 
       if (results.affectedRows) {
@@ -69,10 +68,20 @@ class HomeList extends Service {
     const { ctx, app } = this;
     try {
       console.log(row);
-      let results = await app.mysql.get("user", { telphone: row.telphone });
-      console.log(results, "+++");
+      
+      let _row = row.user_name.length === 11
+          ? {
+              telphone: row.user_name,
+            }
+          : {
+              user_name: row.user_name,
+            };
+            console.log(_row)
+      let results = await app.mysql.get("user", _row);
+
       if (
-        row.telphone === results.telphone &&
+        (row.user_name === results.user_name ||
+          row.user_name === results.telphone) &&
         row.password === results.password
       ) {
         const token = app.jwt.sign(
@@ -84,11 +93,12 @@ class HomeList extends Service {
         return {
           ...results,
           token,
+          code: 200,
         };
       } else {
         return {
           code: 10001,
-          message: "不能重复操作",
+          message: "账号或者密码错误",
         };
       }
     } catch (error) {
@@ -169,9 +179,8 @@ class HomeList extends Service {
       if (results.affectedRows) {
         let data = await app.mysql.select("user");
         //查询总数
-        let total = await app.mysql.query(`select count(*) as total from user`);  
+        let total = await app.mysql.query(`select count(*) as total from user`);
         return { data, total: total[0].total };
-
       } else {
         return {
           code: 10001,
